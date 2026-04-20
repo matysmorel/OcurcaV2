@@ -14,10 +14,19 @@ export function CommunityCTA() {
     e.preventDefault()
     if (!email) return
     setIsSubmitting(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setIsSubmitting(false)
-    setIsSubmitted(true)
-    setEmail("")
+    try {
+      const res = await fetch("https://formspree.io/f/xojylbvz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      if (res.ok) {
+        setIsSubmitted(true)
+        setEmail("")
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
