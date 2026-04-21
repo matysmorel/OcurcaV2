@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import type { Event } from '@/lib/types'
+import { isAdminToken, isSafeUrl } from '@/lib/admin-auth'
 
 const dataPath = path.join(process.cwd(), 'data', 'events.json')
 
@@ -12,26 +13,28 @@ function read(): Event[] {
 function write(data: Event[]) {
   fs.writeFileSync(dataPath, JSON.stringify(data, null, 2))
 }
-function isAdmin(req: NextRequest) {
-  return req.headers.get('x-admin-key') === process.env.ADMIN_PASSWORD
-}
 
 export async function GET() {
   return NextResponse.json(read())
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!isAdminToken(req.headers.get('x-admin-key'))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const body = await req.json()
+  if (body.link && !isSafeUrl(body.link)) {
+    return NextResponse.json({ error: 'Invalid URL — must be http or https' }, { status: 400 })
+  }
   const data = read()
   const item: Event = {
     id: randomUUID(),
-    title: body.title,
-    description: body.description,
-    date: body.date ?? '',
+    title: String(body.title ?? '').slice(0, 200),
+    description: String(body.description ?? '').slice(0, 1000),
+    date: String(body.date ?? ''),
     link: body.link,
-    image: body.image ?? '',
-    published: body.published ?? false,
+    image: String(body.image ?? '').slice(0, 500),
+    published: Boolean(body.published),
     createdAt: new Date().toISOString(),
   }
   data.push(item)

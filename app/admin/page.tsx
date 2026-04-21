@@ -61,8 +61,11 @@ function LoginPage({ onLogin }: { onLogin: (key: string) => void }) {
         body: JSON.stringify({ password }),
       })
       if (res.ok) {
-        localStorage.setItem(STORAGE_KEY, password)
-        onLogin(password)
+        const { token } = await res.json()
+        localStorage.setItem(STORAGE_KEY, token)
+        onLogin(token)
+      } else if (res.status === 429) {
+        setError("Too many attempts. Please wait 15 minutes.")
       } else {
         setError("Invalid password. Please try again.")
       }
