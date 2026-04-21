@@ -45,7 +45,7 @@ const emptyForm = (): FormState => ({
 // ─── LoginPage ──────────────────────────────────────────────────────────────
 
 function LoginPage({ onLogin }: { onLogin: (key: string) => void }) {
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState("matys@growbyte.co")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
