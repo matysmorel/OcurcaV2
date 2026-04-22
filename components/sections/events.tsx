@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion, useInView } from "framer-motion"
 import Image from "next/image"
+import { supabase } from "@/lib/supabase"
 import type { Event } from "@/lib/types"
 
 function SkeletonCard() {
@@ -10,7 +11,6 @@ function SkeletonCard() {
     <div className="animate-pulse bg-white border border-[#262626]/10 overflow-hidden">
       <div className="bg-[#e8e6e1] h-48 w-full" />
       <div className="p-6 space-y-3">
-        <div className="h-3 bg-[#e8e6e1] rounded w-1/3" />
         <div className="h-5 bg-[#e8e6e1] rounded w-3/4" />
         <div className="h-4 bg-[#e8e6e1] rounded w-full" />
         <div className="h-4 bg-[#e8e6e1] rounded w-5/6" />
@@ -33,9 +33,9 @@ function EventCard({ event, index }: { event: Event; index: number }) {
       className="bg-white border border-[#262626]/10 overflow-hidden group flex flex-col"
     >
       <div className="relative h-48 bg-[#e8e6e1] overflow-hidden flex-shrink-0">
-        {event.image ? (
+        {event.image_url ? (
           <Image
-            src={event.image}
+            src={event.image_url}
             alt={event.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -53,11 +53,9 @@ function EventCard({ event, index }: { event: Event; index: number }) {
       </div>
 
       <div className="p-6 flex flex-col flex-1">
-        {event.date && (
-          <p className="text-[#8FC261] text-xs tracking-[0.15em] uppercase font-medium mb-2">
-            {new Date(event.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-          </p>
-        )}
+        <p className="text-[#8FC261] text-xs tracking-[0.15em] uppercase font-medium mb-2">
+          {new Date(event.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+        </p>
         <h3
           className="text-[#262626] text-xl mb-3 font-medium"
           style={{ fontFamily: "var(--font-carme)" }}
@@ -90,9 +88,12 @@ export function Events() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/events")
-      .then(r => r.json())
-      .then((data: Event[]) => setEvents(data.filter(e => e.published)))
+    supabase
+      .from("events")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setEvents(data ?? []))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])

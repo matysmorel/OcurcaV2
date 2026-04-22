@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import { supabaseAdmin } from '@/lib/supabase'
 import { isAdminToken } from '@/lib/admin-auth'
 
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -23,13 +22,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'File must be under 5 MB' }, { status: 400 })
   }
 
-  const rawExt = path.extname(file.name).toLowerCase()
+  const rawExt = '.' + file.name.split('.').pop()?.toLowerCase()
   const ext = ALLOWED_EXTS.has(rawExt) ? rawExt : '.jpg'
   const filename = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}${ext}`
 
-  const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
+  const bytes = await file.arrayBuffer()
+  const { error } = await supabaseAdmin()
+    .storage
+    .from('media')
+    .upload(filename, bytes, { contentType: file.type, upsert: false })
 
-  fs.writeFileSync(path.join(uploadsDir, filename), Buffer.from(await file.arrayBuffer()))
-  return NextResponse.json({ url: `/uploads/${filename}` })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  const { data: { publicUrl } } = supabaseAdmin()
+    .storage
+    .from('media')
+    .getPublicUrl(filename)
+
+  return NextResponse.json({ url: publicUrl })
 }

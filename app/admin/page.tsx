@@ -32,14 +32,13 @@ type FormMode = "add" | "edit"
 interface FormState {
   title: string
   description: string
-  date: string
   link: string
-  image: string
+  image_url: string
   published: boolean
 }
 
 const emptyForm = (): FormState => ({
-  title: "", description: "", date: "", link: "", image: "", published: false,
+  title: "", description: "", link: "", image_url: "", published: false,
 })
 
 // ─── LoginPage ──────────────────────────────────────────────────────────────
@@ -223,7 +222,7 @@ function ItemForm({
     setUploading(true)
     try {
       const url = await uploadFile(file)
-      set("image", url)
+      set("image_url", url)
       toast.success("Image uploaded")
     } catch {
       toast.error("Image upload failed")
@@ -250,7 +249,8 @@ function ItemForm({
         onSaved()
         onClose()
       } else {
-        toast.error("Failed to save item")
+        const body = await res.json().catch(() => ({}))
+        toast.error(body.error ?? "Failed to save item")
       }
     } catch {
       toast.error("Network error")
@@ -299,18 +299,6 @@ function ItemForm({
             {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description}</p>}
           </div>
 
-          {tab === "events" && (
-            <div>
-              <label className="block text-xs tracking-widest uppercase text-[#262626]/60 mb-1.5">Date</label>
-              <input
-                type="date"
-                value={form.date}
-                onChange={e => set("date", e.target.value)}
-                className={fieldClass()}
-              />
-            </div>
-          )}
-
           <div>
             <label className="block text-xs tracking-widest uppercase text-[#262626]/60 mb-1.5">Link / URL *</label>
             <input
@@ -342,8 +330,8 @@ function ItemForm({
             {imageMode === "url" ? (
               <input
                 type="text"
-                value={form.image}
-                onChange={e => set("image", e.target.value)}
+                value={form.image_url}
+                onChange={e => set("image_url", e.target.value)}
                 placeholder="https://example.com/image.jpg"
                 className={fieldClass()}
               />
@@ -358,7 +346,7 @@ function ItemForm({
                 >
                   {uploading ? "Uploading…" : "Choose file"}
                 </button>
-                {form.image && <span className="text-xs text-[#8FC261] truncate max-w-[180px]">{form.image}</span>}
+                {form.image_url && <span className="text-xs text-[#8FC261] truncate max-w-[180px]">{form.image_url}</span>}
               </div>
             )}
           </div>
@@ -412,14 +400,12 @@ function ItemForm({
 
 // ─── DataTable ────────────────────────────────────────────────────────────────
 
-function DataTable<T extends { id: string; title: string; published: boolean; createdAt: string } & Record<string, unknown>>({
+function DataTable<T extends { id: string; title: string; published: boolean; created_at: string } & Record<string, unknown>>({
   items,
-  tab,
   onEdit,
   onDelete,
 }: {
   items: T[]
-  tab: Tab
   onEdit: (item: T) => void
   onDelete: (item: T) => void
 }) {
@@ -437,7 +423,6 @@ function DataTable<T extends { id: string; title: string; published: boolean; cr
         <thead>
           <tr className="border-b border-[#262626]/10 bg-[#F5F3EE]/50">
             <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-[#262626]/50 font-medium">Title</th>
-            {tab === "events" && <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-[#262626]/50 font-medium">Date</th>}
             <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-[#262626]/50 font-medium">Status</th>
             <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-[#262626]/50 font-medium">Created</th>
             <th className="px-4 py-3" />
@@ -446,19 +431,14 @@ function DataTable<T extends { id: string; title: string; published: boolean; cr
         <tbody>
           {items.map((item, i) => (
             <tr key={item.id} className={`border-b border-[#262626]/8 hover:bg-[#F5F3EE]/30 transition-colors ${i % 2 === 0 ? "" : "bg-[#F5F3EE]/20"}`}>
-              <td className="px-4 py-3 font-medium text-[#262626] max-w-[200px] truncate">{item.title}</td>
-              {tab === "events" && (
-                <td className="px-4 py-3 text-[#262626]/60">
-                  {item.date ? new Date(item.date as string).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
-                </td>
-              )}
+              <td className="px-4 py-3 font-medium text-[#262626] max-w-[260px] truncate">{item.title}</td>
               <td className="px-4 py-3">
                 <span className={`inline-flex items-center px-2 py-0.5 text-xs font-medium ${item.published ? "bg-[#8FC261]/20 text-[#4a8025]" : "bg-[#262626]/8 text-[#262626]/50"}`}>
                   {item.published ? "Published" : "Draft"}
                 </span>
               </td>
               <td className="px-4 py-3 text-[#262626]/50">
-                {new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </td>
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2 justify-end">
@@ -506,8 +486,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         fetch("/api/events", { headers: adminHeaders() }).then(r => r.json()),
         fetch("/api/blog-posts", { headers: adminHeaders() }).then(r => r.json()),
       ])
-      setEvents(ev)
-      setBlogPosts(bp)
+      setEvents(Array.isArray(ev) ? ev : [])
+      setBlogPosts(Array.isArray(bp) ? bp : [])
     } catch {
       toast.error("Failed to load data")
     } finally {
@@ -528,9 +508,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       id: item.id,
       title: item.title,
       description: item.description,
-      date: (item as Event).date ?? "",
       link: item.link,
-      image: item.image,
+      image_url: item.image_url ?? "",
       published: item.published,
     })
     setFormMode("edit")
@@ -611,7 +590,6 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         ) : (
           <DataTable
             items={currentItems}
-            tab={tab}
             onEdit={openEdit}
             onDelete={item => setDeleteTarget({ id: item.id, title: item.title })}
           />

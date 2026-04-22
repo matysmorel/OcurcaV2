@@ -2,11 +2,11 @@ export interface Event {
   id: string
   title: string
   description: string
-  date: string
   link: string
-  image: string
+  image_url: string | null
   published: boolean
-  createdAt: string
+  created_at: string
+  updated_at: string
 }
 
 export interface BlogPost {
@@ -14,7 +14,8 @@ export interface BlogPost {
   title: string
   description: string
   link: string
-  image: string
+  image_url: string | null
   published: boolean
-  createdAt: string
+  created_at: string
+  updated_at: string
 }

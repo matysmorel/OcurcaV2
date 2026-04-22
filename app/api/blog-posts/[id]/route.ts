@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-import type { BlogPost } from '@/lib/types'
+import { supabaseAdmin } from '@/lib/supabase'
 import { isAdminToken, isSafeUrl } from '@/lib/admin-auth'
-
-const dataPath = path.join(process.cwd(), 'data', 'blog-posts.json')
-
-function read(): BlogPost[] {
-  try { return JSON.parse(fs.readFileSync(dataPath, 'utf-8')) } catch { return [] }
-}
-function write(data: BlogPost[]) {
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2))
-}
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!isAdminToken(req.headers.get('x-admin-key'))) {
@@ -22,20 +11,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (body.link && !isSafeUrl(body.link)) {
     return NextResponse.json({ error: 'Invalid URL — must be http or https' }, { status: 400 })
   }
-  const data = read()
-  const idx = data.findIndex(p => p.id === id)
-  if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  data[idx] = {
-    ...data[idx],
-    title: String(body.title ?? data[idx].title).slice(0, 200),
-    description: String(body.description ?? data[idx].description).slice(0, 1000),
-    link: body.link ?? data[idx].link,
-    image: String(body.image ?? data[idx].image).slice(0, 500),
-    published: Boolean(body.published),
-    id,
-  }
-  write(data)
-  return NextResponse.json(data[idx])
+  const { data, error } = await supabaseAdmin()
+    .from('blog_posts')
+    .update({
+      title: String(body.title ?? '').slice(0, 200),
+      description: String(body.description ?? '').slice(0, 1000),
+      link: body.link,
+      image_url: body.image_url ? String(body.image_url).slice(0, 500) : null,
+      published: Boolean(body.published),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) return NextResponse.json({ error: error.message }, { status: error.code === 'PGRST116' ? 404 : 500 })
+  return NextResponse.json(data)
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -43,9 +33,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const { id } = await params
-  const data = read()
-  const filtered = data.filter(p => p.id !== id)
-  if (filtered.length === data.length) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  write(filtered)
+  const { error } = await supabaseAdmin()
+    .from('blog_posts')
+    .delete()
+    .eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }

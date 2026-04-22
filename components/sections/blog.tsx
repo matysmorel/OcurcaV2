@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion, useInView } from "framer-motion"
 import Image from "next/image"
+import { supabase } from "@/lib/supabase"
 import type { BlogPost } from "@/lib/types"
 
 function SkeletonCard() {
@@ -30,9 +31,9 @@ function PostCard({ post, index }: { post: BlogPost; index: number }) {
       className="group border-l-[3px] border-[#8FC261]/25 hover:border-[#8FC261] pl-8 py-4 transition-all duration-300 flex flex-col gap-4"
     >
       <div className="relative h-44 bg-[#F5F3EE]/5 overflow-hidden flex-shrink-0">
-        {post.image ? (
+        {post.image_url ? (
           <Image
-            src={post.image}
+            src={post.image_url}
             alt={post.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -82,9 +83,12 @@ export function Blog() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/blog-posts")
-      .then(r => r.json())
-      .then((data: BlogPost[]) => setPosts(data.filter(p => p.published)))
+    supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setPosts(data ?? []))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])

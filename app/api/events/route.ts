@@ -1,21 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-import { randomUUID } from 'crypto'
-import type { Event } from '@/lib/types'
+import { supabaseAdmin } from '@/lib/supabase'
 import { isAdminToken, isSafeUrl } from '@/lib/admin-auth'
 
-const dataPath = path.join(process.cwd(), 'data', 'events.json')
-
-function read(): Event[] {
-  try { return JSON.parse(fs.readFileSync(dataPath, 'utf-8')) } catch { return [] }
-}
-function write(data: Event[]) {
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2))
-}
-
 export async function GET() {
-  return NextResponse.json(read())
+  const { data, error } = await supabaseAdmin()
+    .from('events')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
 }
 
 export async function POST(req: NextRequest) {
@@ -26,18 +19,17 @@ export async function POST(req: NextRequest) {
   if (body.link && !isSafeUrl(body.link)) {
     return NextResponse.json({ error: 'Invalid URL — must be http or https' }, { status: 400 })
   }
-  const data = read()
-  const item: Event = {
-    id: randomUUID(),
-    title: String(body.title ?? '').slice(0, 200),
-    description: String(body.description ?? '').slice(0, 1000),
-    date: String(body.date ?? ''),
-    link: body.link,
-    image: String(body.image ?? '').slice(0, 500),
-    published: Boolean(body.published),
-    createdAt: new Date().toISOString(),
-  }
-  data.push(item)
-  write(data)
-  return NextResponse.json(item, { status: 201 })
+  const { data, error } = await supabaseAdmin()
+    .from('events')
+    .insert({
+      title: String(body.title ?? '').slice(0, 200),
+      description: String(body.description ?? '').slice(0, 1000),
+      link: body.link,
+      image_url: body.image_url ? String(body.image_url).slice(0, 500) : null,
+      published: Boolean(body.published),
+    })
+    .select()
+    .single()
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data, { status: 201 })
 }
