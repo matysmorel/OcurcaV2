@@ -2,27 +2,40 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef, useState } from "react"
+import { supabase } from "@/lib/supabase"
+
+const INTERESTS = [
+  { value: "community-events", label: "🎉 Community Events" },
+  { value: "eshop", label: "🛍️ E-Shop" },
+  { value: "the-protocol", label: "📖 The Protocol" },
+]
 
 export function CommunityCTA() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const [email, setEmail] = useState("")
+  const [interests, setInterests] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+
+  const toggleInterest = (value: string) => {
+    setInterests(prev =>
+      prev.includes(value) ? prev.filter(i => i !== value) : [...prev, value]
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
     setIsSubmitting(true)
     try {
-      const res = await fetch("https://formspree.io/f/xojylbvz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ email }),
-      })
-      if (res.ok) {
+      const { error } = await supabase
+        .from("subscribers")
+        .upsert({ email, interests }, { onConflict: "email" })
+      if (!error) {
         setIsSubmitted(true)
         setEmail("")
+        setInterests([])
       }
     } finally {
       setIsSubmitting(false)
@@ -89,11 +102,12 @@ export function CommunityCTA() {
         </motion.div>
 
         <motion.form
+          id="contact-form"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           onSubmit={handleSubmit}
-          className="flex flex-col sm:flex-row max-w-xl"
+          className="max-w-xl"
         >
           {isSubmitted ? (
             <motion.div
@@ -108,31 +122,55 @@ export function CommunityCTA() {
             </motion.div>
           ) : (
             <>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                className="flex-1 px-6 py-4 bg-[#262626] text-[#F5F3EE] placeholder:text-[#F5F3EE]/30 focus:outline-none focus:ring-2 focus:ring-[#F5F3EE]/20 transition-all border-0 min-w-0"
-              />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-8 py-4 bg-[#F5F3EE] text-[#262626] font-medium hover:bg-[#262626] hover:text-[#F5F3EE] transition-all duration-300 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Joining...
-                  </>
-                ) : (
-                  "Subscribe"
-                )}
-              </button>
+              {/* Interest pills */}
+              <div className="mb-6">
+                <p className="text-[#262626] text-sm font-medium mb-3">I'm interested in</p>
+                <div className="flex flex-wrap gap-2">
+                  {INTERESTS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => toggleInterest(value)}
+                      className={`px-4 py-2 text-sm font-medium transition-all duration-200 cursor-pointer ${
+                        interests.includes(value)
+                          ? "bg-[#262626] text-[#F5F3EE] border border-[#262626]"
+                          : "bg-transparent text-[#262626] border border-[#262626]/50 hover:border-[#262626]"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Email + submit */}
+              <div className="flex flex-col sm:flex-row">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  className="flex-1 px-6 py-4 bg-[#262626] text-[#F5F3EE] placeholder:text-[#F5F3EE]/30 focus:outline-none focus:ring-2 focus:ring-[#F5F3EE]/20 transition-all border-0 min-w-0"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-8 py-4 bg-[#F5F3EE] text-[#262626] font-medium hover:bg-[#262626] hover:text-[#F5F3EE] transition-all duration-300 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Joining...
+                    </>
+                  ) : (
+                    "Subscribe"
+                  )}
+                </button>
+              </div>
             </>
           )}
         </motion.form>
