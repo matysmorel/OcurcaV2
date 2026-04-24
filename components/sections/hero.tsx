@@ -32,7 +32,7 @@ function SkeletonCard() {
 }
 
 function HeroCarousel({ items, loading }: { items: CarouselItem[]; loading: boolean }) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" })
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center", containScroll: false })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
@@ -64,10 +64,10 @@ function HeroCarousel({ items, loading }: { items: CarouselItem[]; loading: bool
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div ref={emblaRef} className="overflow-hidden">
-        <div className="flex">
+      <div ref={emblaRef} className="overflow-hidden w-full">
+        <div className="flex w-full">
           {items.map((item) => (
-            <div key={item.id} className="flex-[0_0_100%] min-w-0">
+            <div key={item.id} className="flex-[0_0_100%] w-full min-w-0">
               <a
                 href={item.link}
                 target="_blank"
@@ -231,9 +231,9 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center justify-between gap-6 bg-[#262626] text-[#F5F3EE] px-8 py-4 text-base font-medium hover:bg-[#8FC261] hover:text-[#262626] transition-colors duration-300 cursor-pointer w-full max-w-sm"
+              className="inline-flex items-center bg-[#262626] text-[#F5F3EE] px-8 py-4 text-base font-medium hover:bg-[#8FC261] hover:text-[#262626] transition-colors duration-300 cursor-pointer w-full max-w-sm"
             >
-              Join the Community
+              <span className="flex-1">Join the Community</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
               </svg>
