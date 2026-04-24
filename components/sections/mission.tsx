@@ -159,6 +159,18 @@ export function Mission() {
             ))}
           </div>
         </div>
+
+        <div className="mt-16 flex justify-center">
+          <a
+            href="#contact-form"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#8FC261] border border-[#8FC261] px-5 py-2.5 hover:bg-[#8FC261] hover:text-[#262626] transition-all duration-200 cursor-pointer"
+          >
+            Stay Informed
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+            </svg>
+          </a>
+        </div>
       </div>
     </section>
   )

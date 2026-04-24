@@ -226,29 +226,6 @@ export function Hero() {
               how you live.
             </motion.h1>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col sm:flex-row sm:items-center gap-4"
-            >
-              <a
-                href="#events"
-                className="inline-flex items-center gap-3 bg-[#262626] text-[#F5F3EE] px-8 py-4 font-medium text-base hover:bg-[#8FC261] hover:text-[#262626] transition-all duration-300 cursor-pointer whitespace-nowrap"
-              >
-                Join the Community
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
-                </svg>
-              </a>
-
-              <a
-                href="#contact-form"
-                className="inline-flex items-center gap-3 border border-[#8FC261] text-[#8FC261] px-8 py-4 font-medium text-base hover:bg-[#8FC261] hover:text-[#262626] transition-all duration-300 cursor-pointer whitespace-nowrap"
-              >
-                Keep in Touch
-              </a>
-            </motion.div>
           </div>
 
           {/* Right: carousel */}

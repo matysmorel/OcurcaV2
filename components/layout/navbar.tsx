@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 
-function BonesDropdown() {
+function PagesDropdown() {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -30,7 +30,7 @@ function BonesDropdown() {
         onClick={() => setOpen(v => !v)}
         className="flex items-center gap-1.5 text-sm font-medium text-[#262626] hover:text-[#8FC261] transition-colors duration-200 cursor-pointer"
       >
-        Bones
+        Pages
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="13"
@@ -99,7 +99,7 @@ export function Navbar() {
         transition={{ duration: 0.6, delay: 0.1 }}
         className="flex items-center gap-6"
       >
-        <BonesDropdown />
+        <PagesDropdown />
 
         <Link
           href="/#community"
