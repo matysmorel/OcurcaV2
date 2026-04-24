@@ -124,7 +124,7 @@ export function CommunityCTA() {
                       className={`px-4 py-2 text-sm font-medium transition-all duration-200 cursor-pointer ${
                         interests.includes(value)
                           ? "bg-[#8FC261] text-[#262626] border border-[#8FC261]"
-                          : "bg-transparent text-[#F5F3EE] border border-[#F5F3EE]/25 hover:border-[#F5F3EE]/60"
+                          : "bg-[#262626] text-[#F5F3EE] border border-[#262626] hover:border-[#262626]"
                       }`}
                     >
                       {label}
