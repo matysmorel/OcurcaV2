@@ -101,12 +101,6 @@ export function Navbar() {
       >
         <PagesDropdown />
 
-        <Link
-          href="/#community"
-          className="hidden md:inline-flex items-center px-5 py-2.5 text-sm font-medium bg-[#8FC261] text-[#262626] hover:bg-[#7ab050] transition-colors duration-200"
-        >
-          JOIN US
-        </Link>
       </motion.div>
     </nav>
   )
