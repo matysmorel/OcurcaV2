@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import useEmblaCarousel from "embla-carousel-react"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/layout/navbar"
 
@@ -32,31 +31,19 @@ function SkeletonCard() {
 }
 
 function HeroCarousel({ items, loading }: { items: CarouselItem[]; loading: boolean }) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center", containScroll: false })
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
   useEffect(() => {
-    if (!emblaApi) return
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
-    emblaApi.on("select", onSelect)
-    return () => { emblaApi.off("select", onSelect) }
-  }, [emblaApi])
-
-  useEffect(() => {
-    if (!emblaApi || isPaused || items.length <= 1) return
-    const timer = setInterval(() => emblaApi.scrollNext(), 4000)
+    if (isPaused || items.length <= 1) return
+    const timer = setInterval(() => {
+      setActiveIndex(prev => (prev + 1) % items.length)
+    }, 4000)
     return () => clearInterval(timer)
-  }, [emblaApi, isPaused, items.length])
+  }, [isPaused, items.length])
 
   if (loading || items.length === 0) {
-    return (
-      <div className="space-y-3">
-        <SkeletonCard />
-        <SkeletonCard />
-        <SkeletonCard />
-      </div>
-    )
+    return <SkeletonCard />
   }
 
   return (
@@ -64,69 +51,75 @@ function HeroCarousel({ items, loading }: { items: CarouselItem[]; loading: bool
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div ref={emblaRef} className="overflow-hidden w-full">
-        <div className="flex w-full">
-          {items.map((item) => (
-            <div key={item.id} className="flex-[0_0_100%] w-full min-w-0">
-              <a
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block bg-[#262626] overflow-hidden"
-              >
-                <div className="relative h-44 bg-[#F5F3EE]/5 overflow-hidden">
-                  {item.image_url ? (
-                    <Image
-                      src={item.image_url}
-                      alt={item.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-[#F5F3EE]/15">
-                        {item.type === "EVENT" ? (
-                          <>
-                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                            <line x1="16" x2="16" y1="2" y2="6" />
-                            <line x1="8" x2="8" y1="2" y2="6" />
-                            <line x1="3" x2="21" y1="10" y2="10" />
-                          </>
-                        ) : (
-                          <>
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                          </>
-                        )}
-                      </svg>
-                    </div>
-                  )}
-                  <div className="absolute top-3 left-3">
-                    <span className={`text-[10px] font-semibold tracking-[0.2em] uppercase px-2.5 py-1 ${
-                      item.type === "EVENT"
-                        ? "bg-[#8FC261] text-[#262626]"
-                        : "bg-[#F5F3EE]/15 text-[#F5F3EE]"
-                    }`}>
-                      {item.type}
-                    </span>
+      <div className="relative overflow-hidden">
+        {items.map((item, i) => (
+          <div
+            key={item.id}
+            className="transition-opacity duration-300"
+            style={
+              i === activeIndex
+                ? { position: "relative", opacity: 1, pointerEvents: "auto" }
+                : { position: "absolute", inset: 0, opacity: 0, pointerEvents: "none" }
+            }
+          >
+            <a
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block bg-[#262626] overflow-hidden"
+            >
+              <div className="relative h-44 bg-[#F5F3EE]/5 overflow-hidden">
+                {item.image_url ? (
+                  <Image
+                    src={item.image_url}
+                    alt={item.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-[#F5F3EE]/15">
+                      {item.type === "EVENT" ? (
+                        <>
+                          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                          <line x1="16" x2="16" y1="2" y2="6" />
+                          <line x1="8" x2="8" y1="2" y2="6" />
+                          <line x1="3" x2="21" y1="10" y2="10" />
+                        </>
+                      ) : (
+                        <>
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                        </>
+                      )}
+                    </svg>
                   </div>
+                )}
+                <div className="absolute top-3 left-3">
+                  <span className={`text-[10px] font-semibold tracking-[0.2em] uppercase px-2.5 py-1 ${
+                    item.type === "EVENT"
+                      ? "bg-[#8FC261] text-[#262626]"
+                      : "bg-[#F5F3EE]/15 text-[#F5F3EE]"
+                  }`}>
+                    {item.type}
+                  </span>
                 </div>
+              </div>
 
-                <div className="p-5">
-                  <h3
-                    className="text-[#F5F3EE] font-medium mb-2 text-lg leading-tight"
-                    style={{ fontFamily: "var(--font-carme)" }}
-                  >
-                    {item.title}
-                  </h3>
-                  <p className="text-[#F5F3EE]/50 text-sm leading-relaxed line-clamp-2">
-                    {item.description}
-                  </p>
-                </div>
-              </a>
-            </div>
-          ))}
-        </div>
+              <div className="p-5">
+                <h3
+                  className="text-[#F5F3EE] font-medium mb-2 text-lg leading-tight"
+                  style={{ fontFamily: "var(--font-carme)" }}
+                >
+                  {item.title}
+                </h3>
+                <p className="text-[#F5F3EE]/50 text-sm leading-relaxed line-clamp-2">
+                  {item.description}
+                </p>
+              </div>
+            </a>
+          </div>
+        ))}
       </div>
 
       {items.length > 1 && (
@@ -134,9 +127,9 @@ function HeroCarousel({ items, loading }: { items: CarouselItem[]; loading: bool
           {items.map((_, i) => (
             <button
               key={i}
-              onClick={() => emblaApi?.scrollTo(i)}
+              onClick={() => setActiveIndex(i)}
               className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                i === selectedIndex ? "w-6 bg-[#8FC261]" : "w-1.5 bg-[#262626]/25"
+                i === activeIndex ? "w-6 bg-[#8FC261]" : "w-1.5 bg-[#262626]/25"
               }`}
               aria-label={`Slide ${i + 1}`}
             />
@@ -231,9 +224,9 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center bg-[#262626] text-[#F5F3EE] px-8 py-4 text-base font-medium hover:bg-[#8FC261] hover:text-[#262626] transition-colors duration-300 cursor-pointer w-full max-w-sm"
+              className="inline-flex items-center gap-4 bg-[#262626] text-[#F5F3EE] px-6 py-4 text-base font-medium hover:bg-[#8FC261] hover:text-[#262626] transition-colors duration-300 cursor-pointer"
             >
-              <span className="flex-1">Join the Community</span>
+              Join the Community
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
               </svg>
