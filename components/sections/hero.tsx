@@ -231,7 +231,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center justify-between gap-6 bg-[#262626] text-[#F5F3EE] px-8 py-5 text-base font-medium hover:bg-[#1a1a1a] transition-colors duration-200 cursor-pointer w-full max-w-sm"
+              className="inline-flex items-center justify-between gap-6 bg-[#262626] text-[#F5F3EE] px-8 py-4 text-base font-medium hover:bg-[#8FC261] hover:text-[#262626] transition-colors duration-300 cursor-pointer w-full max-w-sm"
             >
               Join the Community
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -43,7 +43,7 @@ export function CommunityCTA() {
   }
 
   return (
-    <section id="community" className="relative bg-[#0a0a0a] overflow-hidden py-24 md:py-36">
+    <section id="community" className="relative bg-[#8FC261] overflow-hidden py-24 md:py-36">
       {/* Watermark */}
       <div
         className="absolute inset-0 flex items-center overflow-hidden pointer-events-none select-none"
