@@ -103,12 +103,9 @@ export function Navbar() {
 
         <Link
           href="/#community"
-          className="hidden md:flex items-center gap-2 text-sm font-medium text-[#262626] hover:text-[#8FC261] transition-colors duration-200"
+          className="hidden md:inline-flex items-center px-5 py-2.5 text-sm font-medium bg-[#8FC261] text-[#262626] hover:bg-[#7ab050] transition-colors duration-200"
         >
-          Join Community
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
-          </svg>
+          JOIN US
         </Link>
       </motion.div>
     </nav>
