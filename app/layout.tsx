@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Poppins, Carme } from 'next/font/google'
+import { Poppins, Jost } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/LanguageContext'
 import './globals.css'
@@ -10,9 +10,9 @@ const poppins = Poppins({
   variable: '--font-poppins',
 })
 
-const carme = Carme({
+const carme = Jost({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400'],
+  weight: ['300', '400', '500'],
   variable: '--font-carme',
 })
 
