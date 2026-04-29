@@ -5,6 +5,7 @@ import { motion, useInView } from "framer-motion"
 import Image from "next/image"
 import { supabase } from "@/lib/supabase"
 import type { BlogPost } from "@/lib/types"
+import { useLanguage } from "@/context/LanguageContext"
 
 function SkeletonCard() {
   return (
@@ -21,6 +22,7 @@ function SkeletonCard() {
 function PostCard({ post, index }: { post: BlogPost; index: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-60px" })
+  const { t } = useLanguage()
 
   return (
     <motion.article
@@ -51,10 +53,7 @@ function PostCard({ post, index }: { post: BlogPost; index: number }) {
       </div>
 
       <div className="flex flex-col flex-1 gap-3">
-        <h3
-          className="text-[#F5F3EE] text-xl font-medium"
-          style={{ fontFamily: "var(--font-carme)" }}
-        >
+        <h3 className="text-[#F5F3EE] text-xl font-medium" style={{ fontFamily: "var(--font-carme)" }}>
           {post.title}
         </h3>
         <p className="text-[#F5F3EE]/55 text-sm leading-relaxed flex-1">
@@ -66,7 +65,7 @@ function PostCard({ post, index }: { post: BlogPost; index: number }) {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-sm font-medium text-[#8FC261] border border-[#8FC261]/40 px-5 py-2.5 hover:bg-[#8FC261] hover:text-[#262626] hover:border-[#8FC261] transition-all duration-200 cursor-pointer self-start"
         >
-          Read More
+          {t("blog_read_more")}
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
           </svg>
@@ -81,6 +80,7 @@ export function Blog() {
   const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" })
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     supabase
@@ -121,7 +121,7 @@ export function Blog() {
             className="flex items-center gap-3 mb-6"
           >
             <span className="block w-10 h-[2px] bg-[#8FC261]" />
-            <span className="text-[#8FC261] text-xs tracking-[0.25em] uppercase font-medium">Knowledge</span>
+            <span className="text-[#8FC261] text-xs tracking-[0.25em] uppercase font-medium">{t("blog_eyebrow")}</span>
           </motion.div>
 
           <motion.h2
@@ -136,7 +136,7 @@ export function Blog() {
               letterSpacing: "-0.015em",
             }}
           >
-            The Protocol
+            {t("blog_heading")}
           </motion.h2>
         </div>
 
@@ -158,7 +158,7 @@ export function Blog() {
               </svg>
             </div>
             <p className="text-[#F5F3EE]/50 text-lg" style={{ fontFamily: "var(--font-carme)" }}>
-              First articles coming soon
+              {t("blog_empty")}
             </p>
           </motion.div>
         ) : (
@@ -174,7 +174,7 @@ export function Blog() {
             href="#contact-form"
             className="inline-flex items-center gap-2 text-sm font-medium text-[#8FC261] border border-[#8FC261] px-5 py-2.5 hover:bg-[#8FC261] hover:text-[#262626] transition-all duration-200 cursor-pointer"
           >
-            Get Articles in My Inbox
+            {t("blog_cta")}
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
             </svg>

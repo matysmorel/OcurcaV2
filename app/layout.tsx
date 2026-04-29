@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
 import { Poppins, Carme } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { LanguageProvider } from '@/context/LanguageContext'
 import './globals.css'
 
-const poppins = Poppins({ 
-  subsets: ['latin'],
+const poppins = Poppins({
+  subsets: ['latin', 'latin-ext'],
   weight: ['400', '500', '600'],
   variable: '--font-poppins',
 })
 
-const carme = Carme({ 
-  subsets: ['latin'],
+const carme = Carme({
+  subsets: ['latin', 'latin-ext'],
   weight: ['400'],
   variable: '--font-carme',
 })
@@ -33,7 +34,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-[#F5F3EE]">
       <body className={`${poppins.variable} ${carme.variable} font-sans antialiased`}>
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

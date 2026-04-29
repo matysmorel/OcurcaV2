@@ -1,9 +1,10 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { useInView } from "framer-motion"
+import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import Image from "next/image"
+import { useLanguage } from "@/context/LanguageContext"
+import type { TranslationKey } from "@/lib/translations"
 
 const socialLinks = [
   {
@@ -40,15 +41,16 @@ const socialLinks = [
   },
 ]
 
-const footerLinks = [
-  { name: "Mission", href: "#mission" },
-  { name: "Roadmap", href: "#roadmap" },
-  { name: "Community", href: "#community" },
+const footerLinkConfig: { labelKey: TranslationKey; href: string }[] = [
+  { labelKey: "footer_link_mission", href: "#mission" },
+  { labelKey: "footer_link_roadmap", href: "#roadmap" },
+  { labelKey: "footer_link_community", href: "#community" },
 ]
 
 export function Footer() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
+  const { t } = useLanguage()
 
   return (
     <footer className="bg-[#262626] py-16">
@@ -68,13 +70,13 @@ export function Footer() {
           />
 
           <nav className="flex items-center gap-8">
-            {footerLinks.map((link) => (
+            {footerLinkConfig.map((link) => (
               <a
-                key={link.name}
+                key={link.labelKey}
                 href={link.href}
                 className="text-[#F5F3EE]/70 hover:text-[#8FC261] transition-colors duration-200"
               >
-                {link.name}
+                {t(link.labelKey)}
               </a>
             ))}
           </nav>
@@ -100,11 +102,11 @@ export function Footer() {
           className="pt-8 border-t border-[#F5F3EE]/10 flex flex-col md:flex-row items-center justify-between gap-4"
         >
           <p className="text-[#F5F3EE]/50 text-sm">
-            &copy; {new Date().getFullYear()} Ocurca. All rights reserved.
+            &copy; {new Date().getFullYear()} Ocurca. {t("footer_rights")}
           </p>
-          
+
           <p className="text-[#F5F3EE]/50 text-sm">
-            Ancient Wisdom meets Modern Science
+            {t("footer_tagline")}
           </p>
         </motion.div>
       </div>

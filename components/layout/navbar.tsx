@@ -4,10 +4,13 @@ import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
+import { useLanguage } from "@/context/LanguageContext"
+import type { Language } from "@/lib/translations"
 
 function PagesDropdown() {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -30,7 +33,7 @@ function PagesDropdown() {
         onClick={() => setOpen(v => !v)}
         className="flex items-center gap-1.5 text-sm font-medium text-[#262626] hover:text-[#8FC261] transition-colors duration-200 cursor-pointer"
       >
-        Pages
+        {t("nav_pages")}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="13"
@@ -64,18 +67,43 @@ function PagesDropdown() {
               onClick={() => setOpen(false)}
               className="block px-5 py-3 text-sm text-[#262626] hover:text-[#8FC261] hover:bg-[#262626]/5 transition-colors duration-150"
             >
-              Community Events
+              {t("nav_community_events")}
             </Link>
             <Link
               href="/protocol"
               onClick={() => setOpen(false)}
               className="block px-5 py-3 text-sm text-[#262626] hover:text-[#8FC261] hover:bg-[#262626]/5 transition-colors duration-150 border-t border-[#262626]/10"
             >
-              The Protocol
+              {t("nav_the_protocol")}
             </Link>
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  )
+}
+
+function LanguageToggle() {
+  const { lang, setLang } = useLanguage()
+  const options: Language[] = ["en", "cs"]
+
+  return (
+    <div className="flex items-center gap-1 text-sm font-medium">
+      {options.map((option, i) => (
+        <span key={option} className="flex items-center gap-1">
+          {i > 0 && <span className="text-[#262626]/25">|</span>}
+          <button
+            onClick={() => setLang(option)}
+            className={`cursor-pointer transition-colors duration-200 uppercase tracking-wide ${
+              lang === option
+                ? "text-[#262626]"
+                : "text-[#262626]/40 hover:text-[#262626]/70"
+            }`}
+          >
+            {option}
+          </button>
+        </span>
+      ))}
     </div>
   )
 }
@@ -100,7 +128,7 @@ export function Navbar() {
         className="flex items-center gap-6"
       >
         <PagesDropdown />
-
+        <LanguageToggle />
       </motion.div>
     </nav>
   )

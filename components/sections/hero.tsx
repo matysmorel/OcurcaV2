@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/layout/navbar"
+import { useLanguage } from "@/context/LanguageContext"
 
 type CarouselItem = {
   id: string
@@ -143,6 +144,7 @@ function HeroCarousel({ items, loading }: { items: CarouselItem[]; loading: bool
 export function Hero() {
   const [items, setItems] = useState<CarouselItem[]>([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     Promise.all([
@@ -197,7 +199,7 @@ export function Hero() {
             >
               <span className="block w-10 h-[2px] bg-[#8FC261]" />
               <span className="text-[#8FC261] text-xs tracking-[0.25em] uppercase font-medium">
-                Ancient Wisdom meets Modern Science
+                {t("hero_eyebrow")}
               </span>
             </motion.div>
 
@@ -213,10 +215,10 @@ export function Hero() {
                 letterSpacing: "-0.02em",
               }}
             >
-              Functional<br />
-              <span className="text-[#8FC261]">nutrition</span><br />
-              designed for<br />
-              how you live.
+              {t("hero_h1_line1")}<br />
+              <span className="text-[#8FC261]">{t("hero_h1_accent")}</span><br />
+              {t("hero_h1_line3")}<br />
+              {t("hero_h1_line4")}
             </motion.h1>
 
             <motion.a
@@ -226,7 +228,7 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="inline-flex items-center gap-4 bg-[#262626] text-[#F5F3EE] px-6 py-4 text-base font-medium hover:bg-[#8FC261] hover:text-[#262626] transition-colors duration-300 cursor-pointer"
             >
-              Join the Community
+              {t("hero_cta")}
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
               </svg>
@@ -275,7 +277,7 @@ export function Hero() {
             <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
           </svg>
         </motion.div>
-        <span className="text-[#262626]/40 text-xs tracking-widest uppercase">Scroll</span>
+        <span className="text-[#262626]/40 text-xs tracking-widest uppercase">{t("hero_scroll")}</span>
       </motion.div>
     </section>
   )

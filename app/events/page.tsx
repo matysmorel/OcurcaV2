@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/sections/footer"
 import type { Event } from "@/lib/types"
+import { useLanguage } from "@/context/LanguageContext"
 
 function SkeletonCard() {
   return (
@@ -25,6 +26,7 @@ function SkeletonCard() {
 function EventCard({ event, index }: { event: Event; index: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-60px" })
+  const { t } = useLanguage()
 
   return (
     <motion.article
@@ -56,12 +58,9 @@ function EventCard({ event, index }: { event: Event; index: number }) {
 
       <div className="p-6 flex flex-col flex-1">
         <p className="text-[#8FC261] text-xs tracking-[0.15em] uppercase font-medium mb-2">
-          {new Date(event.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+          {new Date(event.created_at).toLocaleDateString(t("date_locale"), { month: "long", day: "numeric", year: "numeric" })}
         </p>
-        <h3
-          className="text-[#262626] text-xl mb-3 font-medium"
-          style={{ fontFamily: "var(--font-carme)" }}
-        >
+        <h3 className="text-[#262626] text-xl mb-3 font-medium" style={{ fontFamily: "var(--font-carme)" }}>
           {event.title}
         </h3>
         <p className="text-[#262626]/60 text-sm leading-relaxed mb-6 flex-1">
@@ -73,7 +72,7 @@ function EventCard({ event, index }: { event: Event; index: number }) {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-sm font-medium text-[#262626] border border-[#262626] px-5 py-2.5 hover:bg-[#262626] hover:text-[#F5F3EE] transition-all duration-200 cursor-pointer self-start"
         >
-          Learn More
+          {t("events_learn_more")}
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
           </svg>
@@ -86,6 +85,7 @@ function EventCard({ event, index }: { event: Event; index: number }) {
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     supabase
@@ -99,7 +99,6 @@ export default function EventsPage() {
 
   return (
     <main className="min-h-screen bg-[#F5F3EE]">
-      {/* Grain texture */}
       <div
         className="fixed inset-0 pointer-events-none z-0 opacity-[0.25] mix-blend-multiply"
         style={{
@@ -114,7 +113,6 @@ export default function EventsPage() {
 
         <section className="py-24 md:py-32">
           <div className="max-w-6xl mx-auto px-6 md:px-12">
-            {/* Header */}
             <div className="mb-16">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -123,7 +121,7 @@ export default function EventsPage() {
                 className="flex items-center gap-3 mb-6"
               >
                 <span className="block w-10 h-[2px] bg-[#8FC261]" />
-                <span className="text-[#8FC261] text-xs tracking-[0.25em] uppercase font-medium">Community</span>
+                <span className="text-[#8FC261] text-xs tracking-[0.25em] uppercase font-medium">{t("events_page_eyebrow")}</span>
               </motion.div>
 
               <motion.h1
@@ -138,11 +136,10 @@ export default function EventsPage() {
                   letterSpacing: "-0.015em",
                 }}
               >
-                Community Events
+                {t("events_page_heading")}
               </motion.h1>
             </div>
 
-            {/* Grid */}
             {loading ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
@@ -163,7 +160,7 @@ export default function EventsPage() {
                   </svg>
                 </div>
                 <p className="text-[#262626]/50 text-lg" style={{ fontFamily: "var(--font-carme)" }}>
-                  Events coming soon — stay tuned
+                  {t("events_empty")}
                 </p>
               </motion.div>
             ) : (

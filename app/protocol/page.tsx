@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/sections/footer"
 import type { BlogPost } from "@/lib/types"
+import { useLanguage } from "@/context/LanguageContext"
 
 function SkeletonCard() {
   return (
@@ -23,6 +24,7 @@ function SkeletonCard() {
 function PostCard({ post, index }: { post: BlogPost; index: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-60px" })
+  const { t } = useLanguage()
 
   return (
     <motion.article
@@ -53,10 +55,7 @@ function PostCard({ post, index }: { post: BlogPost; index: number }) {
       </div>
 
       <div className="flex flex-col flex-1 gap-3">
-        <h3
-          className="text-[#F5F3EE] text-xl font-medium"
-          style={{ fontFamily: "var(--font-carme)" }}
-        >
+        <h3 className="text-[#F5F3EE] text-xl font-medium" style={{ fontFamily: "var(--font-carme)" }}>
           {post.title}
         </h3>
         <p className="text-[#F5F3EE]/55 text-sm leading-relaxed flex-1">
@@ -68,7 +67,7 @@ function PostCard({ post, index }: { post: BlogPost; index: number }) {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-sm font-medium text-[#8FC261] border border-[#8FC261]/40 px-5 py-2.5 hover:bg-[#8FC261] hover:text-[#262626] hover:border-[#8FC261] transition-all duration-200 cursor-pointer self-start"
         >
-          Read More
+          {t("blog_read_more")}
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
           </svg>
@@ -81,6 +80,7 @@ function PostCard({ post, index }: { post: BlogPost; index: number }) {
 export default function ProtocolPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     supabase
@@ -94,7 +94,6 @@ export default function ProtocolPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Header: light bg with navbar */}
       <div className="bg-[#F5F3EE]">
         <div
           className="absolute inset-x-0 top-0 h-64 pointer-events-none opacity-[0.25] mix-blend-multiply"
@@ -114,7 +113,7 @@ export default function ProtocolPage() {
             className="flex items-center gap-3 mb-6"
           >
             <span className="block w-10 h-[2px] bg-[#8FC261]" />
-            <span className="text-[#8FC261] text-xs tracking-[0.25em] uppercase font-medium">Knowledge</span>
+            <span className="text-[#8FC261] text-xs tracking-[0.25em] uppercase font-medium">{t("protocol_page_eyebrow")}</span>
           </motion.div>
 
           <motion.h1
@@ -129,12 +128,11 @@ export default function ProtocolPage() {
               letterSpacing: "-0.015em",
             }}
           >
-            The Protocol
+            {t("protocol_page_heading")}
           </motion.h1>
         </div>
       </div>
 
-      {/* Content: dark bg matching blog section */}
       <section className="relative bg-[#262626] py-24 overflow-hidden">
         <div
           className="absolute inset-0 flex items-center overflow-hidden pointer-events-none select-none"
@@ -172,7 +170,7 @@ export default function ProtocolPage() {
                 </svg>
               </div>
               <p className="text-[#F5F3EE]/50 text-lg" style={{ fontFamily: "var(--font-carme)" }}>
-                First articles coming soon
+                {t("blog_empty")}
               </p>
             </motion.div>
           ) : (
