@@ -105,9 +105,12 @@ export function Footer() {
             &copy; {new Date().getFullYear()} Ocurca. {t("footer_rights")}
           </p>
 
-          <p className="text-[#F5F3EE]/50 text-sm">
-            {t("footer_tagline")}
-          </p>
+          <a
+            href="mailto:micheal@ocurca.com"
+            className="text-[#F5F3EE]/50 text-sm hover:text-[#8FC261] transition-colors duration-200"
+          >
+            micheal@ocurca.com
+          </a>
         </motion.div>
       </div>
     </footer>
